@@ -107,6 +107,7 @@ class _TerminalViewState extends State<TerminalView> {
   int _lastTerminalHeight;
   CellSize _cellSize;
   ViewportOffset _offset;
+  bool canScroll = false;
 
   var _minScrollExtent = 0.0;
   var _maxScrollExtent = 0.0;
@@ -182,7 +183,8 @@ class _TerminalViewState extends State<TerminalView> {
                     0.0,
                     _cellSize.cellHeight * widget.terminal.buffer.height -
                         constraints.maxHeight);
-
+                  
+                canScroll = _maxScrollExtent <= 0;
                 // final currentScrollExtent = _cellSize.cellHeight *
                 //     widget.terminal.buffer.scrollOffsetFromTop;
 
@@ -234,7 +236,11 @@ class _TerminalViewState extends State<TerminalView> {
 
   Widget buildTerminal(BuildContext context) {
     return MouseListener(
-      onScroll: widget.onScroll,
+      onScroll: (o){
+        if(canScroll){
+          widget.onScroll(o);
+        }
+      },
       child: GestureDetector(
         behavior: HitTestBehavior.deferToChild,
         dragStartBehavior: DragStartBehavior.down,
