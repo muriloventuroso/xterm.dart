@@ -4,79 +4,124 @@ import 'package:xterm/terminal/csi.dart';
 import 'package:xterm/terminal/osc.dart';
 import 'package:xterm/terminal/terminal.dart';
 
-typedef AnsiHandler = void Function(Queue<int>, Terminal);
+typedef AnsiHandler = bool Function(Queue<int>, Terminal);
 
-void ansiHandler(Queue<int> queue, Terminal terminal) {
-  final charAfterEsc = String.fromCharCode(queue.removeFirst());
+bool ansiHandler(Queue<int> queue, Terminal terminal) {
+  // The sequence isn't completed, just ignore it.
+  if (queue.isEmpty) {
+    return false;
+  }
+
+  final charAfterEsc = queue.removeFirst();
+
   final handler = _ansiHandlers[charAfterEsc];
   if (handler != null) {
     if (handler != csiHandler && handler != oscHandler) {
       terminal.debug.onEsc(charAfterEsc);
     }
-    return handler(queue, terminal);
+
+    final finished = handler(queue, terminal);
+    if (!finished) {
+      queue.addFirst(charAfterEsc);
+    }
+    return finished;
   }
 
   terminal.debug.onError('unsupported ansi sequence: $charAfterEsc');
+  return true;
 }
 
-final _ansiHandlers = <String, AnsiHandler>{
-  '[': csiHandler,
-  ']': oscHandler,
-  '7': _ansiSaveCursorHandler,
-  '8': _ansiRestoreCursorHandler,
-  'D': _ansiIndexHandler,
-  'E': _ansiNextLineHandler,
-  'H': _ansiTabSetHandler,
-  'M': _ansiReverseIndexHandler,
-  'P': _unsupportedHandler, // Sixel
-  'c': _unsupportedHandler,
-  '#': _unsupportedHandler,
-  '(': _scsHandler(0), //  G0
-  ')': _scsHandler(1), //  G1
-  '*': _voidHandler(1), // TODO: G2 (vt220)
-  '+': _voidHandler(1), // TODO: G3 (vt220)
-  '>': _voidHandler(0), // TODO: Normal Keypad
-  '=': _voidHandler(0), // TODO: Application Keypad
+final _ansiHandlers = <int, AnsiHandler>{
+  '['.codeUnitAt(0): csiHandler,
+  ']'.codeUnitAt(0): oscHandler,
+  '7'.codeUnitAt(0): _ansiSaveCursorHandler,
+  '8'.codeUnitAt(0): _ansiRestoreCursorHandler,
+  'D'.codeUnitAt(0): _ansiIndexHandler,
+  'E'.codeUnitAt(0): _ansiNextLineHandler,
+  'H'.codeUnitAt(0): _ansiTabSetHandler,
+  'M'.codeUnitAt(0): _ansiReverseIndexHandler,
+  'P'.codeUnitAt(0): _unsupportedHandler, // Sixel
+  'c'.codeUnitAt(0): _unsupportedHandler,
+  '#'.codeUnitAt(0): _unsupportedHandler,
+  '('.codeUnitAt(0): _scsHandler(0), //  SCS - G0
+  ')'.codeUnitAt(0): _scsHandler(1), //  SCS - G1
+  '*'.codeUnitAt(0): _voidHandler(1), // TODO: G2 (vt220)
+  '+'.codeUnitAt(0): _voidHandler(1), // TODO: G3 (vt220)
+  '>'.codeUnitAt(0): _voidHandler(0), // TODO: Normal Keypad
+  '='.codeUnitAt(0): _voidHandler(0), // TODO: Application Keypad
 };
+
 
 AnsiHandler _voidHandler(int sequenceLength) {
   return (queue, terminal) {
-    return queue.take(sequenceLength);
+    if (queue.length < sequenceLength) {
+      return false;
+    }
+
+    for (var i = 0; i < sequenceLength; i++) {
+      queue.removeFirst();
+    }
+    return true;
   };
 }
 
-void _unsupportedHandler(Queue<int> queue, Terminal terminal) async {
+bool _unsupportedHandler(Queue<int> queue, Terminal terminal) {
   // print('unimplemented ansi sequence.');
+  return true;
 }
 
-void _ansiSaveCursorHandler(Queue<int> queue, Terminal terminal) {
+bool _ansiSaveCursorHandler(Queue<int> queue, Terminal terminal) {
   terminal.buffer.saveCursor();
+  return true;
 }
 
-void _ansiRestoreCursorHandler(Queue<int> queue, Terminal terminal) {
+bool _ansiRestoreCursorHandler(Queue<int> queue, Terminal terminal) {
   terminal.buffer.restoreCursor();
+  return true;
 }
 
-void _ansiIndexHandler(Queue<int> queue, Terminal terminal) {
+/// https://vt100.net/docs/vt100-ug/chapter3.html#IND IND – Index
+///
+/// ESC D
+///
+/// This sequence causes the active position to move downward one line without
+/// changing the column position. If the active position is at the bottom
+/// margin, a scroll up is performed.
+bool _ansiIndexHandler(Queue<int> queue, Terminal terminal) {
   terminal.buffer.index();
+  return true;
 }
 
-void _ansiReverseIndexHandler(Queue<int> queue, Terminal terminal) {
+bool _ansiReverseIndexHandler(Queue<int> queue, Terminal terminal) {
   terminal.buffer.reverseIndex();
+  return true;
 }
 
+/// SCS – Select Character Set
+///
+/// The appropriate G0 and G1 character sets are designated from one of the five
+/// possible character sets. The G0 and G1 sets are invoked by the codes SI and
+/// SO (shift in and shift out) respectively.
 AnsiHandler _scsHandler(int which) {
   return (Queue<int> queue, Terminal terminal) {
-    final name = String.fromCharCode(queue.removeFirst());
+    // The sequence isn't completed, just ignore it.
+    if (queue.isEmpty) {
+      return false;
+    }
+
+    final name = queue.removeFirst();
     terminal.buffer.charset.designate(which, name);
+    return true;
   };
 }
 
-void _ansiNextLineHandler(Queue<int> queue, Terminal terminal) {
+bool _ansiNextLineHandler(Queue<int> queue, Terminal terminal) {
   terminal.buffer.newLine();
   terminal.buffer.setCursorX(0);
+  return true;
 }
 
-void _ansiTabSetHandler(Queue<int> queue, Terminal terminal) {
+bool _ansiTabSetHandler(Queue<int> queue, Terminal terminal) {
   terminal.tabSetAtCursor();
+  return true;
 }

@@ -22,7 +22,7 @@ class Charset {
     return _cached(codePoint);
   }
 
-  void designate(int index, String name) {
+  void designate(int index, int name) {
     final charset = _charsets[name];
     if (charset != null) {
       _charsetMap[index] = charset;

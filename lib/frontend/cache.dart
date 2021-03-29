@@ -3,25 +3,29 @@ import 'package:quiver/collection.dart';
 
 class TextLayoutCache {
   TextLayoutCache(this.textDirection, int maximumSize)
-      : _cache = LruMap<TextSpan, TextPainter>(maximumSize: maximumSize);
+      : _cache = LruMap<int, TextPainter>(maximumSize: maximumSize);
 
-  final LruMap<TextSpan, TextPainter> _cache;
+  final LruMap<int, TextPainter> _cache;
   final TextDirection textDirection;
 
-  TextPainter getOrPerformLayout(TextSpan text) {
-    final cachedPainter = _cache[text];
-    if (cachedPainter != null) {
-      return cachedPainter;
-    } else {
-      return _performAndCacheLayout(text);
-    }
+  TextPainter getLayoutFromCache(int key) {
+    return _cache[key];
   }
 
-  TextPainter _performAndCacheLayout(TextSpan text) {
+  // TextPainter getOrPerformLayout(TextSpan text) {
+  //   final cachedPainter = _cache[text];
+  //   if (cachedPainter != null) {
+  //     return cachedPainter;
+  //   } else {
+  //     return performAndCacheLayout(text);
+  //   }
+  // }
+
+  TextPainter performAndCacheLayout(TextSpan text, int key) {
     final textPainter = TextPainter(text: text, textDirection: textDirection);
     textPainter.layout();
 
-    _cache[text] = textPainter;
+    _cache[key] = textPainter;
 
     return textPainter;
   }

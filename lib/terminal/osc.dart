@@ -33,17 +33,22 @@ List<String> _parseOsc(Queue<int> queue, Set<int> terminators) {
   return params;
 }
 
-void oscHandler(Queue<int> queue, Terminal terminal) {
+bool oscHandler(Queue<int> queue, Terminal terminal) {
   final params = _parseOsc(queue, terminal.platform.oscTerminators);
+
+  if (params == null) {
+    return false;
+  }
+
   terminal.debug.onOsc(params);
 
   if (params.isEmpty) {
     terminal.debug.onError('osc with no params');
-    return;
+    return true;
   }
 
   if (params.length < 2) {
-    return;
+    return true;
   }
 
   final ps = params[0];
@@ -52,16 +57,14 @@ void oscHandler(Queue<int> queue, Terminal terminal) {
   switch (ps) {
     case '0':
     case '2':
-      if (terminal.onTitleChange != null) {
-        terminal.onTitleChange(pt);
-      }
+      terminal.onTitleChange(pt);
       break;
     case '1':
-      if (terminal.onIconChange != null) {
-        terminal.onIconChange(pt);
-      }
+      terminal.onIconChange(pt);
       break;
     default:
       terminal.debug.onError('unknown osc ps: $ps');
   }
+
+  return true;
 }

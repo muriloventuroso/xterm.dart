@@ -107,7 +107,6 @@ class _TerminalViewState extends State<TerminalView> {
   int _lastTerminalHeight;
   CellSize _cellSize;
   ViewportOffset _offset;
-  bool canScroll = false;
 
   var _minScrollExtent = 0.0;
   var _maxScrollExtent = 0.0;
@@ -184,7 +183,6 @@ class _TerminalViewState extends State<TerminalView> {
                     _cellSize.cellHeight * widget.terminal.buffer.height -
                         constraints.maxHeight);
                   
-                canScroll = _maxScrollExtent <= 0;
                 // final currentScrollExtent = _cellSize.cellHeight *
                 //     widget.terminal.buffer.scrollOffsetFromTop;
 
@@ -237,7 +235,7 @@ class _TerminalViewState extends State<TerminalView> {
   Widget buildTerminal(BuildContext context) {
     return MouseListener(
       onScroll: (o){
-        if(canScroll){
+        if(widget.terminal.applicationCursorKeys){
           widget.onScroll(o);
         }
       },
@@ -467,17 +465,26 @@ class TerminalPainter extends CustomPainter {
   }
 
   void paintCell(Canvas canvas, Cell cell, double offsetX, double offsetY) {
-    if (cell.codePoint == null || cell.attr.invisible) {
+    final attr = cell.attr;
+
+    if (cell.codePoint == null || attr.invisible) {
       return;
     }
 
-    final cellColor = cell.attr.inverse
-        ? cell.attr.bgColor ?? terminal.theme.background
-        : cell.attr.fgColor ?? terminal.theme.foreground;
+    final cellHash = hashValues(cell.codePoint, attr);
+    var tp = textLayoutCache.getLayoutFromCache(cellHash);
+    if (tp != null) {
+      tp.paint(canvas, Offset(offsetX, offsetY));
+      return;
+    }
+
+    final cellColor = attr.inverse
+        ? attr.bgColor ?? terminal.theme.background
+        : attr.fgColor ?? terminal.theme.foreground;
 
     var color = Color(cellColor.value);
 
-    if (cell.attr.faint) {
+    if (attr.faint) {
       color = color.withOpacity(0.5);
     }
 
@@ -507,11 +514,9 @@ class TerminalPainter extends CustomPainter {
       // text: codePointCache.getOrConstruct(cell.codePoint),
       style: style,
     );
-    TextPainter tp;
     if(view.useCache){
       // final tp = textLayoutCache.getOrPerformLayout(span);
-      tp = textLayoutCacheV2.getOrPerformLayout(
-          span, hashValues(cell.codePoint, cell.attr, terminal.theme));
+      tp = textLayoutCache.performAndCacheLayout(span, cellHash);
     }else{
       tp = TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();

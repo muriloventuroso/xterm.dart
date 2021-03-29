@@ -125,14 +125,16 @@ class Terminal with Observable {
   int get cursorY => buffer.cursorY;
   int get scrollOffset => buffer.scrollOffsetFromBottom;
 
-  void write(String text) async {
+  void write(String text) {
     _queue.addAll(text.runes);
     _processInput();
+    refresh();
   }
 
   void writeChar(int codePoint) {
     _queue.addLast(codePoint);
     _processInput();
+    refresh();
   }
 
   List<BufferLine> getVisibleLines() {
@@ -147,9 +149,17 @@ class Terminal with Observable {
 
       const esc = 0x1b;
       final char = _queue.removeFirst();
+
       if (char == esc) {
-        ansiHandler(_queue, this);
-        refresh();
+        final finished = ansiHandler(_queue, this);
+
+        // Terminal sequence in the queue is not completed, and no charater is
+        // consumed.
+        if (!finished) {
+          _queue.addFirst(esc);
+          break;
+        }
+
         continue;
       }
 
@@ -158,17 +168,20 @@ class Terminal with Observable {
   }
 
   void _processChar(int codePoint) {
-    final sbcHandler = sbcHandlers[codePoint];
+    // If the character doesn't have special effect. Write it directly to the
+    // buffer.
+    if (codePoint > sbcMaxCodepoint) {
+      debug.onChar(codePoint);
+      _buffer.writeChar(codePoint);
+      return;
+    }
 
+    // The character may have special effect.
+    final sbcHandler = sbcHandlers[codePoint];
     if (sbcHandler != null) {
       debug.onSbc(codePoint);
       sbcHandler(codePoint, this);
-    } else {
-      debug.onChar(codePoint);
-      _buffer.writeChar(codePoint);
     }
-
-    refresh();
   }
 
   void refresh() {

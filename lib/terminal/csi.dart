@@ -11,11 +11,11 @@ final _csiHandlers = <int, CsiSequenceHandler>{
   'd'.codeUnitAt(0): csiLinePositionAbsolute,
   'f'.codeUnitAt(0): csiCursorPositionHandler,
   'g'.codeUnitAt(0): csiTabClearHandler,
-  'h'.codeUnitAt(0): csiModeHandler,
-  'l'.codeUnitAt(0): csiModeHandler,
+  'h'.codeUnitAt(0): csiModeHandler, // SM - Set Mode
+  'l'.codeUnitAt(0): csiModeHandler, // RM - Reset Mode
   'm'.codeUnitAt(0): sgrHandler,
   'n'.codeUnitAt(0): csiDeviceStatusReportHandler,
-  'r'.codeUnitAt(0): csiSetMarginsHandler,
+  'r'.codeUnitAt(0): csiSetMarginsHandler, // DECSTBM
   't'.codeUnitAt(0): csiWindowManipulation,
   'A'.codeUnitAt(0): csiCursorUpHandler,
   'B'.codeUnitAt(0): csiCursorDownHandler,
@@ -24,8 +24,8 @@ final _csiHandlers = <int, CsiSequenceHandler>{
   'E'.codeUnitAt(0): csiCursorNextLineHandler,
   'F'.codeUnitAt(0): csiCursorPrecedingLineHandler,
   'G'.codeUnitAt(0): csiCursorHorizontalAbsoluteHandler,
-  'H'.codeUnitAt(0): csiCursorPositionHandler,
-  'J'.codeUnitAt(0): csiEraseInDisplayHandler,
+  'H'.codeUnitAt(0): csiCursorPositionHandler, // CUP - Cursor Position
+  'J'.codeUnitAt(0): csiEraseInDisplayHandler, // DECSED - Selective Erase
   'K'.codeUnitAt(0): csiEraseInLineHandler,
   'L'.codeUnitAt(0): csiInsertLinesHandler,
   'M'.codeUnitAt(0): csiDeleteLinesHandler,
@@ -86,8 +86,12 @@ CSI _parseCsi(Queue<int> queue) {
   }
 }
 
-void csiHandler(Queue<int> queue, Terminal terminal) {
+bool csiHandler(Queue<int> queue, Terminal terminal) {
   final csi = _parseCsi(queue);
+
+  if (csi == null) {
+    return false;
+  }
 
   terminal.debug.onCsi(csi);
 
@@ -95,10 +99,11 @@ void csiHandler(Queue<int> queue, Terminal terminal) {
 
   if (handler != null) {
     handler(csi, terminal);
-    return;
+  } else {
+    terminal.debug.onError('unknown: $csi');
   }
 
-  terminal.debug.onError('unknown: $csi');
+  return true;
 }
 
 void csiEraseInDisplayHandler(CSI csi, Terminal terminal) {
