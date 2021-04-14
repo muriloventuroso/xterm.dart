@@ -321,9 +321,10 @@ class _TerminalViewState extends State<TerminalView> {
     return widget.inputBehavior.onTextEdit(value, widget.terminal);
   }
 
-  void onKeyStroke(RawKeyEvent event) {
-    widget.inputBehavior.onKeyStroke(event, widget.terminal);
+  dynamic onKeyStroke(FocusNode focus, RawKeyEvent event) {
+    var ret = widget.inputBehavior.onKeyStroke(event, widget.terminal);
     _offset.moveTo(_maxScrollExtent);
+    return ret;
   }
 
   void onFocus(bool focused) {

@@ -45,4 +45,17 @@ class BufferLine {
     end = end.clamp(start, _cells.length);
     _cells.removeRange(start, end);
   }
+
+  String translateToString({bool trimRight = false, int startCol = 0, int endCol}){
+    String result = "";
+    int start = startCol;
+    int end = endCol ?? _cells.length;
+    while(start < end){
+      var content = _cells[start];
+      result += content.getString();
+      start += 1;
+    }
+
+    return result;
+  }
 }

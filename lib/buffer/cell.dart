@@ -33,4 +33,12 @@ class Cell {
   String toString() {
     return 'Cell($codePoint)';
   }
+
+  String getString() {
+    if(codePoint != null){
+      return String.fromCharCode(codePoint);
+    }
+    return "";
+    
+  }
 }

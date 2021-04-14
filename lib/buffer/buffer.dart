@@ -65,6 +65,13 @@ class Buffer {
     }
   }
 
+  BufferLine getLine(int index) {
+    if(index > -1 && index < lines.length){
+      return lines[index];
+    }
+    return null;
+  }
+
   BufferLine getViewLine(int index) {
     if (index > terminal.viewHeight) {
       return lines.last;
@@ -462,4 +469,5 @@ class Buffer {
 
     lines.removeAt(index);
   }
+
 }
