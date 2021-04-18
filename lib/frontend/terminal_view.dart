@@ -550,6 +550,6 @@ class TerminalPainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     // print('shouldRepaint');
-    return terminal.dirty;
+    return true;
   }
 }
