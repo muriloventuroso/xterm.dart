@@ -102,7 +102,7 @@ key Right +Shift+AppScreen             : "\E[1;*C"
 #key - +KeyPad+AppKeyPad : "\EOm"
 #key . +KeyPad+AppKeyPad : "\EOn"
 #key * +KeyPad+AppKeyPad : "\EOM"
-#key Enter +KeyPad+AppKeyPad : "\r"
+key Enter +KeyPad+AppKeyPad : "\r"
 
 # Keypad keys with NumLock Off
 key Up    -Shift+Ansi+AppCuKeys+KeyPad : "\EOA"
