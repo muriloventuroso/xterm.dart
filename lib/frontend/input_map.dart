@@ -100,7 +100,7 @@ final _idKeyMap = {
   LogicalKeyboardKey.numpadMultiply.keyId: TerminalKey.numpadMultiply,
   LogicalKeyboardKey.numpadSubtract.keyId: TerminalKey.numpadSubtract,
   LogicalKeyboardKey.numpadAdd.keyId: TerminalKey.numpadAdd,
-  LogicalKeyboardKey.numpadEnter.keyId: TerminalKey.numpadEnter,
+  LogicalKeyboardKey.numpadEnter.keyId: TerminalKey.enter,
   LogicalKeyboardKey.numpad1.keyId: TerminalKey.numpad1,
   LogicalKeyboardKey.numpad2.keyId: TerminalKey.numpad2,
   LogicalKeyboardKey.numpad3.keyId: TerminalKey.numpad3,
