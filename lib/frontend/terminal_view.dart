@@ -107,6 +107,7 @@ class _TerminalViewState extends State<TerminalView> {
   int _lastTerminalHeight;
   CellSize _cellSize;
   ViewportOffset _offset;
+  bool isShiftPressed;
 
   var _minScrollExtent = 0.0;
   var _maxScrollExtent = 0.0;
@@ -245,12 +246,16 @@ class _TerminalViewState extends State<TerminalView> {
         onTapDown: (detail) {
           if (widget.terminal.selection.isEmpty) {
             InputListener.of(context).requestKeyboard();
-          } else {
+          } else if (!isShiftPressed){
             widget.terminal.selection.clear();
           }
           final pos = detail.localPosition;
           final offset = getMouseOffset(pos.dx, pos.dy);
-          widget.terminal.mouseMode.onTap(widget.terminal, offset);
+          if (widget.terminal.selection.isEmpty && !isShiftPressed) {
+            widget.terminal.mouseMode.onTap(widget.terminal, offset);
+          }else{
+            widget.terminal.mouseMode.onPanUpdate(widget.terminal, offset);
+          }
           widget.terminal.refresh();
         },
         onPanStart: (detail) {
@@ -326,6 +331,8 @@ class _TerminalViewState extends State<TerminalView> {
     if(event.character != null){
       _offset.moveTo(_maxScrollExtent);
     }
+    isShiftPressed = event.isShiftPressed;
+
     return ret;
   }
 
