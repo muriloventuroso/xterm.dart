@@ -107,7 +107,7 @@ class _TerminalViewState extends State<TerminalView> {
   int _lastTerminalHeight;
   CellSize _cellSize;
   ViewportOffset _offset;
-  bool isShiftPressed;
+  bool isShiftPressed = false;
 
   var _minScrollExtent = 0.0;
   var _maxScrollExtent = 0.0;
