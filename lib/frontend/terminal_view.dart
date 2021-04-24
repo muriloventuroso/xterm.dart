@@ -328,7 +328,7 @@ class _TerminalViewState extends State<TerminalView> {
 
   dynamic onKeyStroke(FocusNode focus, RawKeyEvent event) {
     var ret = widget.inputBehavior.onKeyStroke(event, widget.terminal);
-    if(event.character != null){
+    if(event.character != null || event.logicalKey == LogicalKeyboardKey.arrowDown || event.logicalKey == LogicalKeyboardKey.arrowUp){
       _offset.moveTo(_maxScrollExtent);
     }
     isShiftPressed = event.isShiftPressed;
