@@ -331,8 +331,9 @@ class _TerminalViewState extends State<TerminalView> {
     if(event.character != null || event.logicalKey == LogicalKeyboardKey.arrowDown || event.logicalKey == LogicalKeyboardKey.arrowUp){
       _offset.moveTo(_maxScrollExtent);
     }
-    isShiftPressed = event.isShiftPressed;
-
+    if(event.isShiftPressed != null){
+      isShiftPressed = event.isShiftPressed;
+    }
     return ret;
   }
 
