@@ -107,7 +107,14 @@ class _TerminalViewState extends State<TerminalView> {
   int _lastTerminalHeight;
   CellSize _cellSize;
   ViewportOffset _offset;
-  bool isShiftPressed = false;
+  bool _isShiftPressed;
+
+  bool get isShiftPressed {
+    if(_isShiftPressed == null){
+      return false;
+    }
+    return _isShiftPressed;
+  }
 
   var _minScrollExtent = 0.0;
   var _maxScrollExtent = 0.0;
@@ -332,7 +339,7 @@ class _TerminalViewState extends State<TerminalView> {
       _offset.moveTo(_maxScrollExtent);
     }
     if(event.isShiftPressed != null){
-      isShiftPressed = event.isShiftPressed;
+      _isShiftPressed = event.isShiftPressed;
     }
     return ret;
   }
