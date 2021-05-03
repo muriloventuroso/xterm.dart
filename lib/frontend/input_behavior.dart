@@ -9,7 +9,7 @@ abstract class InputBehavior {
 
   TextEditingValue get initEditingState;
 
-  void onKeyStroke(RawKeyEvent event, Terminal terminal);
+  KeyEventResult onKeyStroke(RawKeyEvent event, Terminal terminal);
 
   TextEditingValue onTextEdit(TextEditingValue value, Terminal terminal);
 

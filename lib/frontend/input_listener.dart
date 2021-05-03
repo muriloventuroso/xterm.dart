@@ -4,7 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-typedef KeyStrokeHandler = dynamic Function(FocusNode, RawKeyEvent);
+typedef KeyStrokeHandler = KeyEventResult Function(FocusNode, RawKeyEvent);
 typedef InputHandler = TextEditingValue Function(TextEditingValue);
 typedef ActionHandler = void Function(TextInputAction);
 typedef FocusHandler = void Function(bool);

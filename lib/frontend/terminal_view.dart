@@ -333,7 +333,7 @@ class _TerminalViewState extends State<TerminalView> {
     return widget.inputBehavior.onTextEdit(value, widget.terminal);
   }
 
-  dynamic onKeyStroke(FocusNode focus, RawKeyEvent event) {
+  KeyEventResult onKeyStroke(FocusNode focus, RawKeyEvent event) {
     var ret = widget.inputBehavior.onKeyStroke(event, widget.terminal);
     if(event.character != null || event.logicalKey == LogicalKeyboardKey.arrowDown || event.logicalKey == LogicalKeyboardKey.arrowUp){
       _offset.moveTo(_maxScrollExtent);

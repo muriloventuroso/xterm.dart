@@ -14,9 +14,9 @@ class InputBehaviorDefault extends InputBehavior {
   TextEditingValue get initEditingState => TextEditingValue.empty;
 
   @override
-  void onKeyStroke(RawKeyEvent event, Terminal terminal) {
+  KeyEventResult onKeyStroke(RawKeyEvent event, Terminal terminal) {
     if (event is! RawKeyDownEvent) {
-      return;
+      return KeyEventResult.ignored;
     }
 
     final key = inputMap(event.logicalKey);
@@ -29,6 +29,7 @@ class InputBehaviorDefault extends InputBehavior {
         shift: event.isShiftPressed,
       );
     }
+    return KeyEventResult.ignored;
   }
 
   @override
