@@ -56,11 +56,17 @@ class CSI {
 CSI _parseCsi(Queue<int> queue) {
   final paramBuffer = StringBuffer();
   final intermediates = <int>[];
+  if (queue.isEmpty) {
+    return null;
+  }
+  var readOffset = 0;
 
   while (true) {
-    // TODO: handle special case when queue is empty as this time.
+    if (queue.length <= readOffset){
+      return null;
+    }
 
-    final char = queue.removeFirst();
+    final char = queue.elementAt(readOffset++);
 
     if (char >= 0x30 && char <= 0x3F) {
       paramBuffer.writeCharCode(char);
@@ -76,6 +82,9 @@ CSI _parseCsi(Queue<int> queue) {
     const csiMax = 0x7e;
 
     if (char >= csiMin && char <= csiMax) {
+      for(var i = 0; i < readOffset; i++){
+        queue.removeFirst();
+      }
       final params = paramBuffer.toString().split(';');
       return CSI(
         params: params,

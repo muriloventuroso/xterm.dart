@@ -12,8 +12,13 @@ List<String> _parseOsc(Queue<int> queue, Set<int> terminators) {
   final params = <String>[];
   final param = StringBuffer();
 
-  while (queue.isNotEmpty) {
-    final char = queue.removeFirst();
+  var readOffset = 0;
+
+  while (true) {
+    if(queue.length <= readOffset){
+      return null;
+    }
+    final char = queue.elementAt(readOffset++);
 
     if (terminators.contains(char)) {
       params.add(param.toString());
@@ -28,6 +33,10 @@ List<String> _parseOsc(Queue<int> queue, Set<int> terminators) {
     }
 
     param.writeCharCode(char);
+  }
+
+  for(var i = 0; i < readOffset; i++){
+    queue.removeFirst();
   }
 
   return params;
