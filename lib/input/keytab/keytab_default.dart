@@ -181,6 +181,7 @@ key F12 +AnyMod  : "\E[24;*~"
 # Work around dead keys
 
 key Space +Control : "\x00"
+key Underscore +Control : "\x1f"
 
 # Some keys are used by konsole to cause operations.
 # The scroll* operations refer to the history buffer.

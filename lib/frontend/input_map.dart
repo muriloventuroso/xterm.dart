@@ -278,6 +278,7 @@ final _idKeyMap = {
   LogicalKeyboardKey.meta.keyId: TerminalKey.meta,
   LogicalKeyboardKey.alt.keyId: TerminalKey.alt,
   LogicalKeyboardKey.control.keyId: TerminalKey.control,
+  0x0000005f: TerminalKey.underscore
   // LogicalKeyboardKey.backtab.keyId: TerminalKey.backtab,
   // LogicalKeyboardKey.returnKey.keyId: TerminalKey.returnKey,
 };

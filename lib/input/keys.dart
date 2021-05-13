@@ -828,8 +828,10 @@ enum TerminalKey {
   /// in defining key maps.
   control,
 
+  underscore,
+
   // Missing flutter keys.
 
   backtab,
-  returnKey,
+  returnKey
 }

@@ -139,7 +139,7 @@ const qtKeynameMap = <String, TerminalKey>{
   'Backslash': TerminalKey.backslash,
   'BracketRight': TerminalKey.bracketRight,
 // 'AsciiCircum': TerminalKey.asciiCircum,
-  // 'Underscore': TerminalKey.underscore,
+  'Underscore': TerminalKey.underscore,
   // 'QuoteLeft': TerminalKey.quoteLeft,
 // 'BraceLeft': TerminalKey.braceLeft,
   // 'Bar': TerminalKey.bar,

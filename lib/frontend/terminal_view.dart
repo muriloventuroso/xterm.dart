@@ -333,7 +333,7 @@ class _TerminalViewState extends State<TerminalView> {
     return widget.inputBehavior.onTextEdit(value, widget.terminal);
   }
 
-  KeyEventResult onKeyStroke(FocusNode focus, RawKeyEvent event) {
+  void onKeyStroke(RawKeyEvent event) {
     var ret = widget.inputBehavior.onKeyStroke(event, widget.terminal);
     if(event.character != null || event.logicalKey == LogicalKeyboardKey.arrowDown || event.logicalKey == LogicalKeyboardKey.arrowUp){
       _offset.moveTo(_maxScrollExtent);
@@ -341,7 +341,6 @@ class _TerminalViewState extends State<TerminalView> {
     if(event.isShiftPressed != null){
       _isShiftPressed = event.isShiftPressed;
     }
-    return ret;
   }
 
   void onFocus(bool focused) {
