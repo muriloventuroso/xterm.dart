@@ -4,7 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-typedef KeyStrokeHandler = void Function(RawKeyEvent);
+typedef KeyStrokeHandler = KeyEventResult Function(FocusNode, RawKeyEvent);
 typedef InputHandler = TextEditingValue Function(TextEditingValue);
 typedef ActionHandler = void Function(TextInputAction);
 typedef FocusHandler = void Function(bool);
@@ -107,20 +107,21 @@ class InputListenerState extends State<InputListener>
   Widget build(BuildContext context) {
     _focusAttachment?.reparent();
 
-    if (widget.listenKeyStroke) {
-      return RawKeyboardListener(
-        focusNode: widget.focusNode,
-        onKey: widget.onKeyStroke,
-        autofocus: widget.autofocus,
-        child: widget.child,
-      );
-    }
+    // if (widget.listenKeyStroke) {
+    //   return RawKeyboardListener(
+    //     focusNode: widget.focusNode,
+    //     onKey: widget.onKeyStroke,
+    //     autofocus: widget.autofocus,
+    //     child: widget.child,
+    //   );
+    // }
 
     return Focus(
       focusNode: widget.focusNode,
       autofocus: widget.autofocus,
       includeSemantics: false,
       child: widget.child,
+      onKey: widget.onKeyStroke,
     );
   }
 
