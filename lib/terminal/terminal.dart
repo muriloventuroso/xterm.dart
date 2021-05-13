@@ -149,6 +149,13 @@ class Terminal with Observable {
     refresh();
   }
 
+  void clearBuffer(){
+    _buffer.clear();
+    _buffer.setCursorX(0);
+    _buffer.setCursorY(0);
+    refresh();
+  }
+
   void _processInput() {
     while (_queue.isNotEmpty) {
       // if (_slowMotion) {
