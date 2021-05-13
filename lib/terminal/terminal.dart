@@ -5,6 +5,7 @@ import 'package:xterm/buffer/buffer.dart';
 import 'package:xterm/buffer/buffer_line.dart';
 import 'package:xterm/buffer/cell_attr.dart';
 import 'package:xterm/mouse/selection.dart';
+import 'package:xterm/mouse/position.dart';
 import 'package:xterm/input/keys.dart';
 import 'package:xterm/input/keytab/keytab.dart';
 import 'package:xterm/input/keytab/keytab_escape.dart';
@@ -139,6 +140,13 @@ class Terminal with Observable {
 
   List<BufferLine> getVisibleLines() {
     return _buffer.getVisibleLines();
+  }
+
+  void selectAll(){
+    selection.init(Position(0, 0));
+    var lastLine = _buffer.lines.last;
+    selection.update(Position(lastLine.length, _buffer.height -1));
+    refresh();
   }
 
   void _processInput() {
