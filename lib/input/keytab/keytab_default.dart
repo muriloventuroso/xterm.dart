@@ -182,7 +182,7 @@ key F12 +AnyMod  : "\E[24;*~"
 
 key Space +Control : "\x00"
 key Underscore +Control : "\x1f"
-
+key Backslash +Control : "\x1c"
 # Some keys are used by konsole to cause operations.
 # The scroll* operations refer to the history buffer.
 
