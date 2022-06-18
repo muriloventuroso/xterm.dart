@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:xterm/frontend/char_size.dart';
@@ -231,9 +229,9 @@ class _TerminalViewState extends State<TerminalView> {
       onTapDown: (detail) {
         final pos = detail.localPosition;
         _tapPosition = getMouseOffset(pos.dx, pos.dy);
-        if(isShiftPressed && _tapPosition != null){
+        if (isShiftPressed && _tapPosition != null) {
           widget.terminal.onPanUpdate(_tapPosition as Position);
-        }else{
+        } else {
           widget.terminal.clearSelection();
         }
         widget.terminal.refresh();
@@ -348,13 +346,13 @@ class _TerminalViewState extends State<TerminalView> {
   }
 
   TextEditingValue? onInput(TextEditingValue value) {
-    if(!isTyping){
+    if (!isTyping) {
       isTyping = true;
       blinkOscillator.pause();
-      if(timerTyping != null){
+      if (timerTyping != null) {
         timerTyping!.cancel();
       }
-      timerTyping = Timer(Duration(milliseconds: 300), (){
+      timerTyping = Timer(Duration(milliseconds: 300), () {
         isTyping = false;
         blinkOscillator.resume();
       });
@@ -364,30 +362,30 @@ class _TerminalViewState extends State<TerminalView> {
 
   KeyEventResult onKeyStroke(FocusNode node, RawKeyEvent event) {
     // TODO: find a way to stop scrolling immediately after key stroke.
-    if(!isTyping){
+    if (!isTyping) {
       isTyping = true;
       blinkOscillator.pause();
-      if(timerTyping != null){
+      if (timerTyping != null) {
         timerTyping!.cancel();
       }
-      timerTyping = Timer(Duration(milliseconds: 300), (){
+      timerTyping = Timer(Duration(milliseconds: 300), () {
         isTyping = false;
         blinkOscillator.resume();
       });
     }
-    if(event is RawKeyDownEvent && event.isShiftPressed){
+    if (event is RawKeyDownEvent && event.isShiftPressed) {
       isShiftPressed = event.isShiftPressed;
     }
-    if(event is RawKeyUpEvent && !event.isShiftPressed){
+    if (event is RawKeyUpEvent && !event.isShiftPressed) {
       isShiftPressed = event.isShiftPressed;
     }
-    
+
     var ret = widget.inputBehavior.onKeyStroke(event, widget.terminal);
     return ret;
   }
 
   void onFocus(bool focused) {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       widget.terminal.refresh();
     });
   }
@@ -492,7 +490,6 @@ class _CursorViewState extends State<CursorView> {
     setState(() {});
   }
 }
-
 
 /// A scroll activity that does nothing. Used to suppress unexpected behaviors
 /// from [Scrollable] during viewport building process.

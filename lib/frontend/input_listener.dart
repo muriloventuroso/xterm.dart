@@ -64,7 +64,7 @@ class InputListenerState extends State<InputListener>
 
     if (!_didAutoFocus && widget.autofocus) {
       _didAutoFocus = true;
-      SchedulerBinding.instance!.addPostFrameCallback((_) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           FocusScope.of(context).autofocus(widget.focusNode);
         }
@@ -185,7 +185,7 @@ class InputListenerState extends State<InputListener>
 
     if (newValue != null) {
       _conn?.setEditingState(newValue);
-    }else {
+    } else {
       _conn?.setEditingState(TextEditingValue.empty);
     }
   }

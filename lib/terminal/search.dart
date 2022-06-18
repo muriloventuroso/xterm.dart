@@ -28,7 +28,8 @@ class SearchOptions {
   bool caseSensitive;
   bool incremental;
 
-  SearchOptions(this.regex, this.wholeWord, this.caseSensitive, this.incremental);
+  SearchOptions(
+      this.regex, this.wholeWord, this.caseSensitive, this.incremental);
 }
 
 const String NON_WORD_CHARACTER = " ~!@#\$%^&*()+`-=[]{}|\;:\"',./<>?";
@@ -43,23 +44,24 @@ class SearchTerminal {
   ValueNotifier<int> cursorMoveListener;
   ValueNotifier<int> resizeListener;
 
-  SearchTerminal(this.terminal, this.scrollController, this.cellSize, this.cursorMoveListener, this.resizeListener);
+  SearchTerminal(this.terminal, this.scrollController, this.cellSize,
+      this.cursorMoveListener, this.resizeListener);
 
-  void _initLinesCache(){
-    if(this._linesCache.isEmpty){
+  void _initLinesCache() {
+    if (this._linesCache.isEmpty) {
       _linesCache = List<String>.filled(terminal.buffer.lines.length, "");
       cursorMoveListener.addListener(_destroyLinesCache);
       resizeListener.addListener(_destroyLinesCache);
     }
     _linesCacheTimeout?.cancel();
-    
-    _linesCacheTimeout = Timer.periodic(Duration(seconds: LINES_CACHE_TIME_TO_LIVE), (timer) {
+
+    _linesCacheTimeout =
+        Timer.periodic(Duration(seconds: LINES_CACHE_TIME_TO_LIVE), (timer) {
       _destroyLinesCache();
     });
-
   }
 
-  void _destroyLinesCache(){
+  void _destroyLinesCache() {
     _linesCache = [];
 
     _linesCacheTimeout?.cancel();
@@ -69,24 +71,24 @@ class SearchTerminal {
     resizeListener.removeListener(_destroyLinesCache);
   }
 
-  bool _isWholeWord(int searchIndex, String line, String term){
-    if(searchIndex == 0){
+  bool _isWholeWord(int searchIndex, String line, String term) {
+    if (searchIndex == 0) {
       return true;
     }
-    if(NON_WORD_CHARACTER.contains(line[searchIndex - 1])){
+    if (NON_WORD_CHARACTER.contains(line[searchIndex - 1])) {
       return true;
     }
-    if(searchIndex + term.length == line.length){
+    if (searchIndex + term.length == line.length) {
       return true;
     }
-    if(NON_WORD_CHARACTER.contains(line[searchIndex + term.length])){
+    if (NON_WORD_CHARACTER.contains(line[searchIndex + term.length])) {
       return true;
     }
     return false;
   }
 
-  bool findNext(String term, SearchOptions searchOptions){
-    if(term.isEmpty){
+  bool findNext(String term, SearchOptions searchOptions) {
+    if (term.isEmpty) {
       terminal.selection?.clear();
       terminal.refresh();
       return false;
@@ -96,12 +98,13 @@ class SearchTerminal {
     int startCol = 0;
     Selection? currentSelection;
 
-    if(terminal.selection != null && !terminal.selection!.isEmpty){
+    if (terminal.selection != null && !terminal.selection!.isEmpty) {
       var incremental = searchOptions.incremental;
       currentSelection = terminal.selection;
-      startRow = incremental ? currentSelection!.start!.y : currentSelection!.end!.y;
-      startCol = incremental ? currentSelection.start!.x : currentSelection.end!.x;
-
+      startRow =
+          incremental ? currentSelection!.start!.y : currentSelection!.end!.y;
+      startCol =
+          incremental ? currentSelection.start!.x : currentSelection.end!.x;
     }
 
     _initLinesCache();
@@ -148,7 +151,7 @@ class SearchTerminal {
   }
 
   bool findPrevious(String term, SearchOptions searchOptions) {
-    if(term.isEmpty){
+    if (term.isEmpty) {
       terminal.selection!.clear();
       terminal.refresh();
       return false;
@@ -159,7 +162,7 @@ class SearchTerminal {
     int startCol = terminal.viewWidth;
     bool incremental = searchOptions.incremental;
     Selection? currentSelection;
-    if(!terminal.selection!.isEmpty){
+    if (!terminal.selection!.isEmpty) {
       currentSelection = terminal.selection;
       // Start from selection start if there is a selection
       startRow = currentSelection!.start!.y;
@@ -171,27 +174,31 @@ class SearchTerminal {
 
     var searchPosition = SearchPosition(startCol, startRow);
 
-    if(incremental){
+    if (incremental) {
       result = _findInLine(term, searchPosition, searchOptions, false);
-      var isOldResultHighlighted = result != null && result.row == startRow && result.col == startCol;
-      if(!isOldResultHighlighted){
-        if(currentSelection != null){
+      var isOldResultHighlighted =
+          result != null && result.row == startRow && result.col == startCol;
+      if (!isOldResultHighlighted) {
+        if (currentSelection != null) {
           searchPosition.startRow = currentSelection.end!.y;
           searchPosition.startCol = currentSelection.end!.x;
         }
         result = _findInLine(term, searchPosition, searchOptions, true);
       }
-    }else{
-      result = _findInLine(term, searchPosition, searchOptions, isReverseSearch);
+    } else {
+      result =
+          _findInLine(term, searchPosition, searchOptions, isReverseSearch);
     }
 
     // Search from startRow - 1 to top
-    if (result == null){
-      searchPosition.startCol = [searchPosition.startCol, terminal.viewWidth].reduce(max);
-      for(var y = startRow - 1; y >= 0; y--){
+    if (result == null) {
+      searchPosition.startCol =
+          [searchPosition.startCol, terminal.viewWidth].reduce(max);
+      for (var y = startRow - 1; y >= 0; y--) {
         searchPosition.startRow = y;
-        result = _findInLine(term, searchPosition, searchOptions, isReverseSearch);
-        if(result != null){
+        result =
+            _findInLine(term, searchPosition, searchOptions, isReverseSearch);
+        if (result != null) {
           break;
         }
       }
@@ -200,32 +207,34 @@ class SearchTerminal {
     if (result == null && startRow != terminal.buffer.lines.length) {
       for (var y = terminal.buffer.lines.length - 1; y >= 0; y--) {
         searchPosition.startRow = y;
-        result = _findInLine(term, searchPosition, searchOptions, isReverseSearch);
+        result =
+            _findInLine(term, searchPosition, searchOptions, isReverseSearch);
         if (result != null) {
           break;
         }
       }
     }
 
-    if(result == null && currentSelection != null){
+    if (result == null && currentSelection != null) {
       return true;
     }
     return _selectResult(result);
   }
 
-  SearchResult? _findInLine(String term, SearchPosition searchPosition, SearchOptions searchOptions, bool isReverseSearch){
+  SearchResult? _findInLine(String term, SearchPosition searchPosition,
+      SearchOptions searchOptions, bool isReverseSearch) {
     int row = searchPosition.startRow;
     int col = searchPosition.startCol;
 
-    if(row >= terminal.buffer.lines.length){
+    if (row >= terminal.buffer.lines.length) {
       return null;
     }
 
     // Ignore wrapped lines, only consider on unwrapped line (first row of command string).
-    if(terminal.buffer.lines.length > row){
+    if (terminal.buffer.lines.length > row) {
       var firstLine = terminal.buffer.lines[row];
-      if(firstLine.isWrapped){
-        if(isReverseSearch){
+      if (firstLine.isWrapped) {
+        if (isReverseSearch) {
           searchPosition.startCol += terminal.viewWidth;
           return null;
         }
@@ -234,84 +243,87 @@ class SearchTerminal {
         // When we find it, we will search using the calculated start column.
         searchPosition.startRow--;
         searchPosition.startCol += terminal.viewWidth;
-        return _findInLine(term, searchPosition, searchOptions, isReverseSearch);
+        return _findInLine(
+            term, searchPosition, searchOptions, isReverseSearch);
       }
     }
-    
+
     var stringLine = _linesCache.isNotEmpty ? _linesCache[row] : null;
-    if(stringLine == null || stringLine == ""){
+    if (stringLine == null || stringLine == "") {
       stringLine = _translateBufferLineToStringWithWrap(row, true);
       _linesCache[row] = stringLine;
     }
 
     String searchTerm = searchOptions.caseSensitive ? term : term.toLowerCase();
-    String searchStringLine = searchOptions.caseSensitive ? stringLine : stringLine.toLowerCase();
+    String searchStringLine =
+        searchOptions.caseSensitive ? stringLine : stringLine.toLowerCase();
     int resultIndex = -1;
 
-    if(searchOptions.regex) {
+    if (searchOptions.regex) {
       RegExp searchRegex = new RegExp(searchTerm);
-      if(isReverseSearch){
+      if (isReverseSearch) {
         // This loop will get the resultIndex of the _last_ regex match in the range 0..col
         // TODO: Testar
-        for (var foundTerm in searchRegex.allMatches(searchStringLine.substring(0, col))){
+        for (var foundTerm
+            in searchRegex.allMatches(searchStringLine.substring(0, col))) {
           resultIndex = foundTerm.start;
           var newTerm = foundTerm.group(0);
-          if(newTerm != null){
+          if (newTerm != null) {
             term = newTerm;
           }
         }
-
-      }else{
-        var foundTerm = searchRegex.allMatches(searchStringLine.substring(col)).toList();
-        if(foundTerm.isNotEmpty){
+      } else {
+        var foundTerm =
+            searchRegex.allMatches(searchStringLine.substring(col)).toList();
+        if (foundTerm.isNotEmpty) {
           resultIndex = col + foundTerm[0].start;
           var newTerm = foundTerm[0].group(0);
-          if(newTerm != null){
+          if (newTerm != null) {
             term = newTerm;
           }
         }
       }
-    }else{
-      if(isReverseSearch){
-        if(col - searchTerm.length > 0 && searchStringLine.length > 0){
-          if(col >= searchStringLine.length){
-            col = searchStringLine.length -1;
+    } else {
+      if (isReverseSearch) {
+        if (col - searchTerm.length > 0 && searchStringLine.length > 0) {
+          if (col >= searchStringLine.length) {
+            col = searchStringLine.length - 1;
           }
-          resultIndex = searchStringLine.substring(0, col).lastIndexOf(searchTerm);
+          resultIndex =
+              searchStringLine.substring(0, col).lastIndexOf(searchTerm);
         }
-      }else{
+      } else {
         resultIndex = searchStringLine.indexOf(searchTerm, col);
       }
     }
 
-    if(resultIndex >= 0){
+    if (resultIndex >= 0) {
       // Adjust the row number and search index if needed since a "line" of text can span multiple rows
-      if(resultIndex >= terminal.viewWidth){
+      if (resultIndex >= terminal.viewWidth) {
         row += (resultIndex / terminal.viewWidth).floor();
         resultIndex = resultIndex % terminal.viewWidth;
       }
-      if(searchOptions.wholeWord && !_isWholeWord(resultIndex, searchStringLine, term)){
+      if (searchOptions.wholeWord &&
+          !_isWholeWord(resultIndex, searchStringLine, term)) {
         return null;
       }
 
-      
-
-      if(terminal.buffer.lines.length > row) {
+      if (terminal.buffer.lines.length > row) {
         var line = terminal.buffer.lines[row];
-        for(var i = 0; i < resultIndex; i++){
+        for (var i = 0; i < resultIndex; i++) {
           var cell = line.cellGetContent(i);
-          if(cell == 0){
+          if (cell == 0) {
             break;
           }
 
           var char = String.fromCharCode(cell);
-          if(char.length > 1){
+          if (char.length > 1) {
             resultIndex -= char.length - 1;
           }
 
           var charWidth = line.cellGetWidth(i);
-          if(charWidth == 0){
-            resultIndex ++;
+          if (charWidth == 0) {
+            resultIndex++;
           }
         }
       }
@@ -319,23 +331,26 @@ class SearchTerminal {
       return SearchResult(term, resultIndex, row);
     }
     return null;
-
   }
 
-  String _translateBufferLineToStringWithWrap(int lineIndex, bool trimRight){
+  String _translateBufferLineToStringWithWrap(int lineIndex, bool trimRight) {
     String lineString = "";
     bool lineWrapsToNext = false;
 
     do {
-      if(terminal.buffer.lines.length > lineIndex + 1){
-        var nextLine = terminal.buffer.lines[lineIndex + 1];
-        lineWrapsToNext = nextLine != null ? nextLine.isWrapped : false;
+      if (terminal.buffer.lines.length > lineIndex + 1) {
+        if (terminal.buffer.lines.length < lineIndex + 2) {
+          lineWrapsToNext = false;
+        } else {
+          var nextLine = terminal.buffer.lines[lineIndex + 1];
+          lineWrapsToNext = nextLine.isWrapped;
+        }
       }
-      if(terminal.buffer.lines.length > lineIndex){
+      if (terminal.buffer.lines.length > lineIndex) {
         var line = terminal.buffer.lines[lineIndex];
         lineString += line.toString();
-        lineIndex ++;
-      }else{
+        lineIndex++;
+      } else {
         break;
       }
     } while (lineWrapsToNext);
@@ -343,23 +358,25 @@ class SearchTerminal {
     return lineString;
   }
 
-  bool _selectResult(SearchResult? result){
-    if(result == null){
+  bool _selectResult(SearchResult? result) {
+    if (result == null) {
       terminal.selection!.clear();
       terminal.refresh();
       return false;
     }
     terminal.selection!.init(Position(result.col, result.row));
-    terminal.selection!.update(Position(result.col + result.term.length - 1, result.row));
+    terminal.selection!
+        .update(Position(result.col + result.term.length - 1, result.row));
     terminal.refresh();
     // If it is not in the viewport then we scroll else it just gets selected
     int startView = scrollController.position.pixels.toInt();
-    int endView = (startView + terminal.viewHeight * cellSize.cellHeight).toInt();
+    int endView =
+        (startView + terminal.viewHeight * cellSize.cellHeight).toInt();
 
-    if(result.row * cellSize.cellHeight >= endView || result.row * cellSize.cellHeight < startView){
+    if (result.row * cellSize.cellHeight >= endView ||
+        result.row * cellSize.cellHeight < startView) {
       scrollController.jumpTo(result.row * cellSize.cellHeight);
     }
     return true;
   }
-
 }
